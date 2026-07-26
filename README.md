@@ -1,53 +1,61 @@
-# Tarea: Sistema de Gestión de Biblioteca (Mini-Aplicación OOP)
+# 📚 Sistema de Gestión de Biblioteca
 
-## Objetivo
-Completar la implementación de un sistema de gestión de biblioteca utilizando PHP y Programación Orientada a Objetos (OOP). Se te proporciona la estructura base de archivos y clases. Tu misión es rellenar la lógica faltante.
+Mini-aplicación en PHP (POO) + MySQL para gestionar libros, usuarios y préstamos, dockerizada para levantarse con un solo comando.
 
-## Configuración Inicial
+## Requisitos previos
 
-1.  **Base de Datos**:
-    *   Abre tu gestor de base de datos (phpMyAdmin, MySQL Workbench, etc.).
-    *   Importa o ejecuta el script SQL contenido en el archivo `biblioteca.sql`.
-    *   Esto creará la base de datos `biblioteca` y las tablas necesarias (`libros`, `usuarios`, `prestamos`).
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado y corriendo.
 
-2.  **Servidor Local**:
-    *   Asegúrate de ejecutar este proyecto dentro de un servidor local (como XAMPP, Laragon, o el servidor integrado de PHP).
+No necesitas instalar PHP, MySQL, XAMPP ni nada más en tu máquina — todo corre dentro de los contenedores.
 
-## Instrucciones de Implementación
+## Cómo ejecutar el proyecto
 
-Busca los comentarios `// TODO` en los archivos para saber exactamente qué implementar. Se recomienda seguir este orden:
+1. Clona o descarga este repositorio.
 
-### Paso 1: Conexión a Base de Datos
-**Archivo:** `classes/Database.php`
-*   Implementa el método `getConnection()` para retornar una conexión PDO válida a la base de datos `biblioteca`.
-*   Asegúrate de que las credenciales (usuario/password) coincidan con tu configuración local.
+2. Abre una terminal (PowerShell, CMD o similar) en la carpeta raíz del proyecto (donde está el archivo `docker-compose.yml`).
 
-### Paso 2: Clases de Modelo
-**Archivos:** `classes/Libro.php`, `classes/Usuario.php`, `classes/Prestamo.php`
-*   Completa los **constructores** para inicializar los atributos de la clase.
-*   Implementa todos los métodos **Getters** y **Setters** para cada propiedad privada.
+3. Levanta los contenedores:
 
-### Paso 3: Lógica de Negocio (Gestor)
-**Archivo:** `classes/Biblioteca.php`
-Esta clase centraliza la funcionalidad. Debes implementar:
-*   **Constructor**: Inicializar la conexión a la base de datos usando la clase `Database`.
-*   **CRUD de Libros**: Métodos `agregarLibro`, `editarLibro`, `eliminarLibro`, `obtenerLibros`.
-*   **CRUD de Usuarios**: Métodos `agregarUsuario`, `editarUsuario`, `eliminarUsuario`, `obtenerUsuarios`.
-*   **Gestión de Préstamos**:
-    *   `prestarLibro($libro_id, $usuario_id)`: Debe crear el registro en la tabla `prestamos` Y disminuir el campo `cantidad` en la tabla `libros`.
-    *   `devolverLibro($prestamo_id)`: Debe actualizar la `fecha_devolucion` y `estado` en `prestamos`, Y aumentar el campo `cantidad` en la tabla `libros`.
+   ```bash
+   docker compose up -d --build
+   ```
 
-### Paso 4: Interfaz de Usuario
-**Archivo:** `index.php`
-*   Implementa la lógica para recibir parámetros (por ejemplo `?action=crear_libro`) y llamar a los métodos correspondientes de la clase `Biblioteca`.
-*   Diseña la interfaz HTML para:
-    *   Listar libros, usuarios y préstamos activos.
-    *   Formularios para agregar nuevos libros y usuarios.
-    *   Botones/Enlaces para "Prestar", "Devolver", "Editar" y "Eliminar".
+   Esto va a:
+   - Construir la imagen de PHP con la extensión `pdo_mysql`.
+   - Descargar y levantar MySQL 8.0.
+   - Crear automáticamente la base de datos `biblioteca` y sus tablas a partir del script en `db-init/biblioteca.sql`.
 
-## Requisitos
-*   El código debe ser limpio y ordenado.
-*   La lógica de negocio debe estar encapsulada en las clases, no en la vista (`index.php` debe usarse principalmente para mostrar datos y capturar input).
-*   No es necesario un sistema de login/autenticación.
+4. Espera unos 15-20 segundos la primera vez (MySQL necesita inicializar).
 
-¡Mucho éxito con tu implementación!
+5. Abre el navegador en:
+
+   ```
+   http://localhost:8080
+   ```
+
+## Comandos útiles
+
+| Acción | Comando |
+|---|---|
+| Levantar los contenedores | `docker compose up -d --build` |
+| Ver logs del backend PHP | `docker compose logs -f php` |
+| Ver logs de MySQL | `docker compose logs -f mysql` |
+| Detener los contenedores | `docker compose down` |
+| Detener y borrar los datos de la BD | `docker compose down -v` |
+
+> Usa `docker compose down -v` si necesitas que la base de datos se reinicialice desde cero con el script `biblioteca.sql` (por ejemplo, si lo modificaste).
+
+## Estructura del proyecto
+
+```
+├── docker-compose.yml     # Orquesta los servicios de PHP y MySQL
+├── Dockerfile              # Imagen del backend PHP
+├── index.php                # Vista principal
+├── src/                        # Clases PHP (modelos y lógica de negocio)
+└── db-init/                  # Script SQL que inicializa la base de datos
+```
+
+## Notas
+
+- El puerto `8080` es el de la app (PHP). El puerto `3306` es el de MySQL, expuesto por si quieres conectarte con un cliente externo (ej. MySQL Workbench, DBeaver).
+- Las credenciales de la base de datos se configuran como variables de entorno dentro de `docker-compose.yml`.
